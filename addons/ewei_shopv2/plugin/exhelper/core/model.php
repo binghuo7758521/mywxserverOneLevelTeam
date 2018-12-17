@@ -93,13 +93,17 @@ class ExhelperModel extends PluginModel
 		$requestData = json_encode($requestData, JSON_UNESCAPED_UNICODE);
 		$printset = pdo_fetch('SELECT * FROM ' . tablename('ewei_shop_exhelper_sys') . ' WHERE uniacid=:uniacid and merchid=0 limit 1', array(':uniacid' => $_W['uniacid']));
 
+      
+      
 		if (empty($printset)) {
 			return NULL;
 		}
 
 		$datas = array('EBusinessID' => $printset['ebusiness'], 'RequestType' => '1007', 'RequestData' => urlencode($requestData), 'DataType' => '2');
 		$datas['DataSign'] = $this->encrypt($requestData, $printset['apikey']);
-		$result = $this->sendPost('http://api.kdniao.cc/api/EOrderService', $datas);
+		
+		$result = $this->sendPost('http://api.kdniao.com/api/EOrderService', $datas);
+		 
 		return $result;
 	}
 
