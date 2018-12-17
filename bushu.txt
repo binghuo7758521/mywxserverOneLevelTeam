@@ -1,0 +1,7 @@
+﻿以下文件是二开文件；
+
+/www/wwwroot/xcxtest.ahjcg.com/addons/ewei_shopv2/template/web_v3/goods/tab/basic.html
+
+/www/wwwroot/xcxtest.ahjcg.com/addons/ewei_shopv2/core/web/goods/post.php
+
+/www/wwwroot/xcxtest.ahjcg.com/addons/ewei_shopv2/plugin/app/core/mobile/order/index.php 
