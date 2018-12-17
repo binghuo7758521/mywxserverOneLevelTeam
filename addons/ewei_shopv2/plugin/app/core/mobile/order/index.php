@@ -1636,14 +1636,14 @@ class Index_EweiShopV2Page extends AppMobilePage
 		$uniacid = intval($_W["uniacid"]);
 
 
-		$order_goods=pdo_fetch("SELECT o.ordersn, og.total, og.goodsid, o.createtime,o.id FROM ".tablename("ewei_shop_order_goods")." as og"." LEFT JOIN".tablename("ewei_shop_order")."as o ON og.orderid=o.id" ." where og.uniacid=:uniacid and o.openid=:openid ORDER BY o.id DESC ", array( ":uniacid" => $uniacid, ":openid" => $_W["openid"] ));
+		$order_goods=pdo_fetch("SELECT o.ordersn, og.total, og.goodsid, o.createtime,o.id,og.optionname,og.goodssn FROM ".tablename("ewei_shop_order_goods")." as og"." LEFT JOIN".tablename("ewei_shop_order")."as o ON og.orderid=o.id" ." where og.uniacid=:uniacid and o.openid=:openid ORDER BY o.id DESC ", array( ":uniacid" => $uniacid, ":openid" => $_W["openid"] ));
 		
 		//用户名
 		$openid = $_W["openid"];
 		$nickname = pdo_fetch("SELECT nickname FROM ".tablename('ewei_shop_member')." WHERE openid = :gid LIMIT 1", array(':gid' => $openid));
 
 		//订单日期
-		$data =date('Y-m-d H:i:s',$order_goods["createtime"]) ;
+		$data =date('Y-m-d H-i-s',$order_goods["createtime"]) ;
 
 		//订单号
 		$ordersn=$order_goods["ordersn"];
@@ -1653,13 +1653,27 @@ class Index_EweiShopV2Page extends AppMobilePage
 		$title = pdo_fetch("SELECT title FROM ".tablename('ewei_shop_goods')." WHERE id = :gid LIMIT 1", array(':gid' => $goodsid));
 		
 		//照片大小
-		$size= pdo_fetch("SELECT size FROM ".tablename('ewei_shop_goods')." WHERE id = :gid LIMIT 1", array(':gid' => $goodsid));
-		$goodssize=$size["size"];
-		$wh= pdo_fetch("SELECT width , height FROM ".tablename('ewei_shop_goods_size')." WHERE size = :gsize LIMIT 1", array(':gsize' => $goodssize));
+      	$imgsize = $order_goods['optionname'];
+      	
+      	$sizes = substr($imgsize,strripos($imgsize, '+')+1);
+      	$size = substr($sizes,0,strpos($sizes,'寸'));//照片尺寸
+      
+      	//Se-2:3-1-30
+      	$whi =  $order_goods['goodssn'];
+      	$wi =  substr($whi,0,strpos($whi,':'));
+      	$width =  substr($wi,strripos($wi, '-')+1); //宽比
+      
+      	$hi =  substr($whi,strripos($whi, ':')+1);
+      	$hight =  substr($hi,0,strpos($hi,'-')); //高比
+      
+      	//var_dump(1111,$hi,$hight);die;
+		//$size= pdo_fetch("SELECT size FROM ".tablename('ewei_shop_goods')." WHERE id = :gid LIMIT 1", array(':gid' => $goodsid));
+		//$goodssize=$size["size"];
+		//$wh= pdo_fetch("SELECT width , height FROM ".tablename('ewei_shop_goods_size')." WHERE size = :gsize LIMIT 1", array(':gsize' => $goodssize));
 
 		$orderid=$order_goods["id"];
 
-		app_json(array("nickname" => $nickname, "data" => $data, "ordersn" => $ordersn, "title" => $title , "orderid" => $orderid , "wh" => $wh, "size" => $size));
+		app_json(array("nickname" => $nickname, "data" => $data, "ordersn" => $ordersn, "title" => $title , "orderid" => $orderid , "width" => $width, "hight" => $hight, "size" => $size));
 
 		
 	}
@@ -1668,57 +1682,14 @@ class Index_EweiShopV2Page extends AppMobilePage
 		global $_W;
 		global $_GPC;
 		$gid = intval($_GPC['goodsid']);
-		//var_dump(1111,$gid);die;
-		
-		//$gid=$goodsid["goodsid"];
+
 		$isupload=pdo_fetch("SELECT isupload FROM ".tablename('ewei_shop_goods')." WHERE id = :gid LIMIT 1", array(':gid' => $gid));
-		//var_dump($isupload,$gid);die;
+
 		app_json(array( "isupload" => $isupload));
 
 		
 	}
 
-	// public function uploadfile() 
-	// {
-	// 	global $_W;
-	// 	global $_GPC;
-	// 	//var_dump(1111);die;
-	// 	$uniacid = intval($_W["uniacid"]);
-		
-	// 	$order_goods=pdo_fetch("SELECT o.ordersn, og.total FROM ".tablename("ewei_shop_order_goods")." as og"." LEFT JOIN".tablename("ewei_shop_order")."as o ON og.orderid=o.id" ." where og.uniacid=:uniacid and o.openid=:openid ORDER BY o.id DESC ", array( ":uniacid" => $uniacid, ":openid" => $_W["openid"] ));
-	// 	app_json(array( "order_goods" => $order_goods));
-
-	// 	$first_file = $_FILES['upload1']; //获取文件1的信息
-	// 	$second_file = $_FILES['upload2']; //获取文件2的信息$upload_dir = 'D:/upload/';  //保存上传文件的目录//处理上传的文件1
-		
-	// 	$upload_dir="../addons/ewei_shopv2/static/newimg/";
-	// 	if (!empty($first_file)){
-	// 	  //上传文件1在服务器上的临时存放路径
-	// 	  $temp_name = $first_file['tmp_name'];
-
-	// 	  //上传文件1在客户端计算机上的真实名称
-	// 	  $file_name = $first_file['name'];
-	// 	  $file_name=time().$file_name;
-	// 	  //移动临时文件夹中的文件1到存放上传文件的目录，并重命名为真实名称
-	// 	  move_uploaded_file($temp_name, $upload_dir.$file_name);
-	// 	  echo '[文件1]上传成功!111<br/>';
-	// 	}else{
-	// 	  echo '[文件1]上传失败!222<br/>';
-	// 	}
-		 
-	// 	//处理上传的文件2
-	// 	if (!empty($second_file)){
-	// 	  //上传文件2在服务器上的临时存放路径
-	// 	  $temp_name = $second_file['tmp_name'];
-	// 	  //上传文件2在客户端计算机上的真实名称
-	// 	  $file_name = $second_file['name'];
-	// 	  $file_name=time().$file_name;
-	// 	  //移动临时文件夹中的文件2到存放上传文件的目录，并重命名为真实名称
-	// 	  move_uploaded_file($temp_name, $upload_dir.$file_name);
-	// 	  echo '[文件2]上传成功!333<br/>';
-	// 	}else {
-	// 	  echo '[文件2]上传失败!444<br/>';
-	// 	}
-	// }
+	
 }
 ?>
